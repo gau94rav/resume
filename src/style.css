@@ -67,3 +67,5 @@ main>section[id],.project-card,.side-project,.toolkit-grid,.role{position:relati
 @keyframes loader-glitch-scan{0%{transform:translateY(0);opacity:0}18%{opacity:.55}80%{opacity:.25}100%{transform:translateY(36px);opacity:0}}
 @keyframes loader-pixel{0%,100%{opacity:.5;transform:scaleY(.55)}40%,70%{opacity:1;transform:scaleY(1)}}
 @media(prefers-reduced-motion:reduce){.screenshot-glitch-loader,.screenshot-glitch-loader::after,.screenshot-glitch-icon i,.loader-text-echo{animation:none!important}.loader-text-echo,.screenshot-glitch-loader::after{display:none}}
+
+.header{margin-bottom:24px}html{scroll-padding-top:124px}@media(max-width:760px){.header{margin-bottom:16px}html{scroll-padding-top:94px}}
