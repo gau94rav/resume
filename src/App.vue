@@ -45,7 +45,7 @@ const roles = [
  { company: 'Canvas Craft Media', role: 'Full Stack Developer', date: 'MAR 2019 — OCT 2021', tag: 'From idea to production', intro: 'Different problems. End-to-end ownership.', points: ['Delivered 10+ bespoke applications for international clients across e-commerce, media, automation, and business workflows.', 'Built Python scraping and automation solutions, video hosting applications, and an Electron activity tracker.', 'Worked directly with clients to turn requirements into production software.'], stack: ['Python','JavaScript','Electron','Full stack'] },
  { company: 'Independent development', role: 'Freelance Developer & Self-directed Learning', date: '2015 — 2019', tag: 'The foundation', intro: 'Learning by building for real people.', points: ['Built responsive websites and custom applications for local businesses and individual clients.', 'Translated Figma designs into interfaces using HTML, CSS, JavaScript, PHP, and Node.js.', 'Contributed to open source and participated in coding camps and technical workshops.'], stack: ['HTML / CSS','JavaScript','PHP','Node.js'] }
 ]
-let observer, sectionObserver
+let observer, sectionObserver, focusObserver
 const onScroll = () => { const max = document.documentElement.scrollHeight - innerHeight; progress.value = max > 0 ? scrollY / max : 0 }
 const go = () => { menuOpen.value = false }
 onMounted(() => {
@@ -55,8 +55,12 @@ onMounted(() => {
  document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
  sectionObserver = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) active.value = e.target.id }), { rootMargin: '-20% 0px -55% 0px' })
  document.querySelectorAll('main > section[id]').forEach(el => sectionObserver.observe(el))
+ focusObserver = new IntersectionObserver(entries => entries.forEach(entry => {
+  entry.target.classList.toggle('card-in-focus', entry.isIntersecting)
+ }), { rootMargin: '-25% 0px -30% 0px', threshold: 0 })
+ document.querySelectorAll('.project-card, .side-project, .toolkit-grid').forEach(el => focusObserver.observe(el))
 })
-onUnmounted(() => { themeMedia.removeEventListener('change', followSystemTheme); window.removeEventListener('scroll', onScroll); observer?.disconnect(); sectionObserver?.disconnect() })
+onUnmounted(() => { themeMedia.removeEventListener('change', followSystemTheme); window.removeEventListener('scroll', onScroll); observer?.disconnect(); sectionObserver?.disconnect(); focusObserver?.disconnect() })
 </script>
 
 <template>
@@ -76,7 +80,7 @@ onUnmounted(() => { themeMedia.removeEventListener('change', followSystemTheme);
   </nav>
  </header>
  <main>
-  <section id="intro" class="hero section-shell">
+  <section id="intro" :class="{ 'section-in-focus': active === 'intro' }" class="hero section-shell">
    <div class="hero-copy">
     <div class="eyebrow"><span class="status-dot"></span> GAURAVJEET SINGH <span class="eyebrow-divider">/</span> SOFTWARE ENGINEER</div>
     <h1>Engineering<br>the next<br><span class="outlined">what if.</span><span class="title-star" aria-hidden="true">✳</span></h1>
@@ -96,7 +100,7 @@ onUnmounted(() => { themeMedia.removeEventListener('change', followSystemTheme);
    <div class="scroll-note"><span>SCROLL TO EXPLORE</span><span>↓</span></div>
   </section>
   <div class="transition-strip" aria-hidden="true"><span>THINK DEEPLY</span><span>✳</span><span>BUILD PLAYFULLY</span><span>✳</span><span>MAKE IT USEFUL</span><span>✳</span></div>
-  <section id="now" class="section-shell now-section">
+  <section id="now" :class="{ 'section-in-focus': active === 'now' }" class="section-shell now-section">
    <div class="section-heading reveal"><div class="eyebrow">01 / THE CURRENT CHAPTER</div><h2>New tools.<br>New possibilities.</h2><p>AI is now a big part of how I work.<br>These are the ideas I’m exploring today.</p></div>
    <div class="current-grid">
     <article class="project-card hopworlds-card reveal" aria-labelledby="hopworlds-title">
@@ -129,16 +133,16 @@ onUnmounted(() => { themeMedia.removeEventListener('change', followSystemTheme);
    </div>
    <div class="side-project reveal"><span class="small-icon">↗</span><div><div class="eyebrow">ALSO ON THE WORKBENCH</div><h3>Smart Dashboard</h3><p>An independent analytics and reporting platform, bringing together dashboards, background processing, and data-driven workflows.</p></div><div class="side-stack">FastAPI · PostgreSQL<br>Celery · Docker</div></div>
   </section>
-  <section id="work" class="work-section section-shell">
+  <section id="work" :class="{ 'section-in-focus': active === 'work' }" class="work-section section-shell">
    <div class="work-intro reveal"><div class="eyebrow">02 / THE EXPERIENCE BEHIND IT</div><h2>A builder,<br>before the buzz.</h2><p>Years of shipping real software.<br>A foundation for what comes next.</p><div class="experience-metric"><strong>7<span>+</span></strong><span>YEARS OF PROFESSIONAL<br>ENGINEERING EXPERIENCE</span></div><a href="/gauravjeet-singh-resume.pdf" download class="text-link">The full resume <span>↗</span></a></div>
    <div class="timeline"><article v-for="(role,index) in roles" :key="role.company" class="role reveal"><div class="timeline-dot"></div><div class="role-top"><span>{{ role.date }}</span><span class="role-index">0{{ index + 1 }}</span></div><h3>{{ role.company }}</h3><div class="role-title">{{ role.role }}</div><div class="role-tag">{{ role.tag }}</div><h4>{{ role.intro }}</h4><ul><li v-for="point in role.points" :key="point">{{ point }}</li></ul><div class="role-stack"><span v-for="tech in role.stack" :key="tech">{{ tech }}</span></div></article></div>
   </section>
-  <section id="toolkit" class="toolkit-section section-shell">
+  <section id="toolkit" :class="{ 'section-in-focus': active === 'toolkit' }" class="toolkit-section section-shell">
    <div class="section-heading reveal"><div class="eyebrow">03 / THE TOOLKIT</div><h2>Grounded in code.<br><span>Amplified by AI.</span></h2><p>Backend depth. Frontend craft.<br>A growing practice of building with AI tools.</p></div>
    <div class="toolkit-grid reveal"><div class="toolkit-feature"><span class="tool-symbol">✳</span><div class="eyebrow">HOW I WORK TODAY</div><h3>AI in the<br> building process.</h3><p>I work heavily with AI tools while developing new products, combining that approach with hands-on full-stack engineering.</p></div><div class="skill-panel"><div class="eyebrow">ENGINEERING FOUNDATION</div><div class="skill-cloud"><span v-for="skill in skills" :key="skill">{{ skill }}</span></div><div class="skill-focus"><div><span>01</span><h4>Backend & data</h4><p>APIs, reporting, aggregation, background jobs.</p></div><div><span>02</span><h4>Interfaces & products</h4><p>Dashboards, developer tools, full-stack applications.</p></div></div></div></div>
    <div class="education reveal"><span class="eyebrow">FOUNDATION</span><div><strong>B.Sc. in Information Technology</strong><span>Karnataka State Open University / NIIT</span></div><span>2012 — 2015</span></div>
   </section>
-  <section id="contact" class="contact-section section-shell reveal"><div class="eyebrow"><span class="status-dot"></span> NEXT / A CONVERSATION</div><h2>Have an interesting<br><span>what if?</span></h2><div class="contact-bottom"><p>Let’s talk software, AI, games,<br>or the idea you can’t stop thinking about.</p><a class="button primary" href="mailto:gau94rav@gmail.com">gau94rav@gmail.com <span>↗</span></a></div></section>
+  <section id="contact" :class="{ 'section-in-focus': active === 'contact' }" class="contact-section section-shell reveal"><div class="eyebrow"><span class="status-dot"></span> NEXT / A CONVERSATION</div><h2>Have an interesting<br><span>what if?</span></h2><div class="contact-bottom"><p>Let’s talk software, AI, games,<br>or the idea you can’t stop thinking about.</p><a class="button primary" href="mailto:gau94rav@gmail.com">gau94rav@gmail.com <span>↗</span></a></div></section>
  </main>
  <footer class="section-shell"><a class="wordmark" href="#intro">gs<span class="brand-dot">.</span></a><span>GAURAVJEET SINGH · {{ year }}</span><div class="footer-links"><a href="https://github.com/gau94rav" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="https://linkedin.com/in/gaurav-singh-251979173" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a><a href="#intro">Back to top ↑</a></div></footer>
 </template>
