@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 const progress = ref(0)
 const active = ref('intro')
 const menuOpen = ref(false)
@@ -19,6 +19,24 @@ const toggleTheme = () => {
 }
 const followSystemTheme = (event) => { if (!themeChosen) applyTheme(event.matches) }
 
+const worlds = ['Jungle', 'Space', 'Sewers']
+const scenes = ['Calm', 'Evolved', 'Chaotic', 'Boss']
+const slides = worlds.flatMap(world => scenes.map(scene => ({
+ world, scene, name: `${world.toLowerCase()}-${scene.toLowerCase()}`,
+ alt: `Hopworlds — ${world} world, ${scene.toLowerCase()} scene`
+})))
+const slideIndex = ref(0)
+const currentSlide = computed(() => slides[slideIndex.value])
+const setSlide = (index) => { slideIndex.value = (index + slides.length) % slides.length }
+let touchStart = null
+const onSlideTouchStart = (event) => { touchStart = { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY } }
+const onSlideTouchEnd = (event) => {
+ if (!touchStart) return
+ const dx = event.changedTouches[0].clientX - touchStart.x
+ const dy = event.changedTouches[0].clientY - touchStart.y
+ if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) setSlide(slideIndex.value + (dx < 0 ? 1 : -1))
+ touchStart = null
+}
 const year = new Date().getFullYear()
 const skills = ['Python','FastAPI','Django','Flask','Vue.js','JavaScript','TypeScript','PostgreSQL','Snowflake','Redis','Celery','Docker','React','Node.js','SQLAlchemy']
 const roles = [
@@ -81,10 +99,27 @@ onUnmounted(() => { themeMedia.removeEventListener('change', followSystemTheme);
   <section id="now" class="section-shell now-section">
    <div class="section-heading reveal"><div class="eyebrow">01 / THE CURRENT CHAPTER</div><h2>New tools.<br>New possibilities.</h2><p>AI is now a big part of how I work.<br>These are the ideas I’m exploring today.</p></div>
    <div class="current-grid">
-    <article class="project-card game-card reveal">
-     <div class="card-label"><span>AI-ASSISTED CREATION</span><span class="project-status">IN PROGRESS</span></div>
-     <div class="game-visual" aria-hidden="true"><div class="game-grid"></div><div class="game-platform platform-a"></div><div class="game-platform platform-b"></div><div class="game-platform platform-c"></div><div class="game-player"><span></span><span></span></div><span class="game-spark spark-a">✦</span><span class="game-spark spark-b">✦</span><span class="game-spark spark-c">+</span><div class="game-hud">IDEA → PLAY</div></div>
-     <div class="project-content"><span class="project-number">PROJECT / 01</span><h3>Small screens.<br>Big imagination.</h3><p>Producing mobile games with AI tools, bringing my software engineering background into a more playful kind of product building.</p><div class="project-tags"><span>Mobile games</span><span>AI tools</span><span>Creative development</span></div></div>
+    <article class="project-card hopworlds-card reveal" aria-labelledby="hopworlds-title">
+     <div class="card-label"><span>AI-ASSISTED CREATION / PROJECT 01</span><span class="project-status">UPCOMING GAME</span></div>
+     <div class="hopworlds-layout">
+      <div class="hopworlds-copy">
+       <div class="eyebrow">GODOT · MOBILE ARCADE ADVENTURE</div>
+       <h3 id="hopworlds-title">Hopworlds<span class="hop-title-dot">.</span></h3>
+       <p class="hopworlds-tagline">Small jumps. Strange worlds.<br>Big adventures.</p>
+       <div class="release-note"><span class="status-dot"></span> Coming to iOS and Android in Q4 2026.</div>
+       <p>Hopworlds is a playful mobile arcade adventure where every bounce takes you deeper into a changing world. Launch from a slingshot, dodge mischievous creatures and discover unexpected powers across lush jungles, distant planets and winding sewers. Each journey builds toward a boss battle alongside a flying companion.</p>
+       <p>Built in Godot, the game features Campaign, Arcade and Zen modes, touch and motion controls, and a custom Theme Studio that connects artwork, animation and audio to shared gameplay systems.</p>
+       <div class="project-tags"><span>Godot</span><span>iOS + Android</span><span>Campaign · Arcade · Zen</span><span>Theme Studio</span></div>
+      </div>
+      <div class="hop-gallery" role="region" aria-roledescription="carousel" aria-label="Hopworlds screenshots" tabindex="0" @keydown.left.prevent="setSlide(slideIndex - 1)" @keydown.right.prevent="setSlide(slideIndex + 1)">
+       <div class="world-picker" aria-label="Explore game worlds"><button v-for="(world,index) in worlds" :key="world" :class="{ selected: currentSlide.world === world }" :aria-pressed="currentSlide.world === world" @click="setSlide(index * 4)">{{ world }}</button></div>
+       <div class="screenshot-stage" @touchstart.passive="onSlideTouchStart" @touchend.passive="onSlideTouchEnd">
+        <img :src="`/hopworlds/${currentSlide.name}.webp`" :alt="currentSlide.alt" width="864" height="1440" decoding="async" loading="lazy" class="hop-screenshot">
+       </div>
+       <div class="slide-toolbar"><button class="slide-arrow" aria-label="Previous screenshot" @click="setSlide(slideIndex - 1)">←</button><div class="slide-caption" aria-live="polite" aria-atomic="true"><strong>{{ currentSlide.world }} / {{ currentSlide.scene }}</strong><span>{{ String(slideIndex + 1).padStart(2, '0') }} / 12</span></div><button class="slide-arrow" aria-label="Next screenshot" @click="setSlide(slideIndex + 1)">→</button></div>
+       <div class="slide-thumbnails" aria-label="Choose a screenshot"><button v-for="(slide,index) in slides" :key="slide.name" :class="{ selected: slideIndex === index }" :aria-label="`Show ${slide.world} ${slide.scene} screenshot`" :aria-pressed="slideIndex === index" @click="setSlide(index)"><img :src="`/hopworlds/${slide.name}-thumb.webp`" alt="" width="120" height="200" loading="lazy" decoding="async"></button></div>
+      </div>
+     </div>
     </article>
     <article class="project-card risk-card reveal">
      <div class="card-label"><span>AI × INSURANCE</span><span class="project-status">IN DEVELOPMENT</span></div>

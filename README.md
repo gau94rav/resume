@@ -1,6 +1,6 @@
 # Gauravjeet Singh — interactive resume
 
-Vue 3 + Vite, with responsive layouts, IntersectionObserver scroll reveals, scroll progress, reduced-motion support, and a downloadable original resume. Current project illustrations are conceptual artwork, not screenshots of shipped products.
+Vue 3 + Vite, with responsive layouts, IntersectionObserver scroll reveals, scroll progress, reduced-motion support, and a downloadable original resume. Hopworlds includes 12 supplied upcoming-game screenshots, world selection, thumbnails, keyboard navigation, and touch swipe. The AI risk illustration is conceptual artwork. Dark mode follows the system preference and remembers a manual choice.
 
 ## Run
 
