@@ -22,6 +22,9 @@ onMounted(checkCachedImage)
 
 <template>
  <img :key="`${src}-${attempt}`" ref="element" v-bind="$attrs" :src="src" :alt="alt" :class="{ 'screenshot-pending': pending, 'screenshot-failed': failed }" :aria-busy="pending" @load="finish" @error="fail">
- <span v-if="pending" class="screenshot-loader" role="status"><span class="screenshot-loader-ring" aria-hidden="true"></span><span>Loading screenshot</span></span>
+ <span v-if="pending" class="screenshot-loader screenshot-glitch-loader" role="status">
+  <span class="screenshot-glitch-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+  <span class="screenshot-glitch-label">Loading screenshot<span class="loader-text-echo echo-one" aria-hidden="true">Loading screenshot</span><span class="loader-text-echo echo-two" aria-hidden="true">Loading screenshot</span></span>
+ </span>
  <span v-else-if="failed" class="screenshot-loader screenshot-load-error" role="status"><span>Screenshot couldn’t load.</span><button @click="retry">Retry</button></span>
 </template>
