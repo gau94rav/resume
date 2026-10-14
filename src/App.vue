@@ -200,7 +200,7 @@ onUnmounted(() => {
    </div>
    <article id="vuln-lens" class="project-card vuln-lens-card reveal" aria-labelledby="vuln-title">
     <div class="card-label"><span>DEVSECOPS / BACKEND ENGINEERING</span><span class="project-status">INDEPENDENT PROJECT</span></div>
-    <div class="vuln-intro"><div><div class="eyebrow">FROM SECURITY SCANS TO CLEAR NEXT STEPS</div><h3 id="vuln-title">Vuln Lens<span class="hop-title-dot">.</span></h3></div><a href="https://vuln-lens.vercel.app/" target="_blank" rel="noopener noreferrer" class="button primary">Explore Vuln Lens <span>↗</span></a></div>
+    <div class="vuln-intro"><div><div class="eyebrow">FROM SECURITY SCANS TO CLEAR NEXT STEPS</div><h3 id="vuln-title">Vuln Lens<span class="hop-title-dot">.</span></h3></div><div class="vuln-visit"><a href="https://vuln-lens.vercel.app/" target="_blank" rel="noopener noreferrer" class="button primary">Explore Vuln Lens <span>↗</span></a><p class="vuln-hosting-note">Currently hosted on an unstable server. Moving to more reliable hosting soon.</p></div></div>
     <p class="vuln-summary">Built the backend for a DevSecOps vulnerability analytics platform that turns security scans into consistent, actionable findings. Teams can prioritize risk, track changes, preserve triage decisions, and move from detection to remediation across repositories.</p>
     <div class="vuln-flow" aria-label="Scan processing flow"><span>Security scanners</span><i aria-hidden="true">→</i><span>SARIF + API</span><i aria-hidden="true">→</i><span>Background workers</span><i aria-hidden="true">→</i><span>Findings + remediation</span></div>
     <div class="vuln-tour" role="region" aria-label="Vuln Lens feature tour">
