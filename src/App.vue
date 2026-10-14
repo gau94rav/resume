@@ -5,20 +5,15 @@ const progress = ref(0)
 const active = ref('intro')
 const menuOpen = ref(false)
 const isDark = ref(document.documentElement.dataset.theme === 'dark')
-const themeMedia = window.matchMedia('(prefers-color-scheme: dark)')
-let themeChosen = false
-try { themeChosen = ['light', 'dark'].includes(localStorage.getItem('resume-theme')) } catch {}
 const applyTheme = (dark) => {
  isDark.value = dark
  document.documentElement.dataset.theme = dark ? 'dark' : 'light'
  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#101827' : '#edf1f8')
 }
 const toggleTheme = () => {
- themeChosen = true
  applyTheme(!isDark.value)
  try { localStorage.setItem('resume-theme', isDark.value ? 'dark' : 'light') } catch {}
 }
-const followSystemTheme = (event) => { if (!themeChosen) applyTheme(event.matches) }
 
 const worlds = ['Jungle', 'Space', 'Sewers']
 const scenes = ['Calm', 'Evolved', 'Chaotic', 'Boss']
@@ -103,7 +98,7 @@ const stopMotion = () => {
 const onScroll = () => { const max = document.documentElement.scrollHeight - innerHeight; progress.value = max > 0 ? scrollY / max : 0 }
 const go = () => { menuOpen.value = false }
 onMounted(() => {
- applyTheme(isDark.value); themeMedia.addEventListener('change', followSystemTheme)
+ applyTheme(isDark.value)
  motionMedia.addEventListener('change', stopMotion)
  bootTimer = setTimeout(() => { booting.value = false }, 1000)
  glitchObserver = new IntersectionObserver(entries => entries.forEach(entry => {
@@ -127,7 +122,7 @@ onUnmounted(() => {
  clearTimeout(bootTimer); glitchObserver?.disconnect()
  motionMedia.removeEventListener('change', stopMotion)
  glitchTimers.forEach(clearTimeout); glitchFrames.forEach(cancelAnimationFrame)
- themeMedia.removeEventListener('change', followSystemTheme); window.removeEventListener('scroll', onScroll); observer?.disconnect(); sectionObserver?.disconnect(); focusObserver?.disconnect() })
+ window.removeEventListener('scroll', onScroll); observer?.disconnect(); sectionObserver?.disconnect(); focusObserver?.disconnect() })
 </script>
 
 <template>
