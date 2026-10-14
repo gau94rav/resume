@@ -12,3 +12,5 @@ npm run dev
 npm run build
 
 Edit content in src/App.vue and styling in src/style.css.
+
+Vuln Lens includes four cropped interface details with feature explanations, manual navigation, and a native dialog for enlarged views. The description identifies the API/processing backend and separately maintained frontend.

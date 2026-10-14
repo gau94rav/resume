@@ -37,6 +37,17 @@ const onSlideTouchEnd = (event) => {
  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) setSlide(slideIndex.value + (dx < 0 ? 1 : -1))
  touchStart = null
 }
+const vulnFeatures = [
+ { id: 'priorities', label: 'Prioritize', title: 'Turn scan noise into a focused queue.', description: 'Focus Mode surfaces the next 10 priorities with severity, risk scores, repository context, occurrences, and status. Filtering and CSV exports help teams turn findings into actionable work.', alt: 'Vuln Lens Focus Mode showing the top 10 vulnerability priorities, risk scores, repository names, and CSV export.' },
+ { id: 'remediation-groups', label: 'Group findings', title: 'Several advisories. One remediation target.', description: 'Related findings are grouped around a shared vulnerable package instance. This example brings eight advisories together, with severity, scores, and fixed versions visible alongside one dependency change.', alt: 'Vuln Lens shared remediation group for python-multipart, with eight related advisories and fixed versions.' },
+ { id: 'ai-assistance', label: 'AI assistance', title: 'Explain the issue. Ground the next step.', description: 'Optional AI summaries draw on scanner evidence, occurrences, and issue history. Remediation guidance makes confidence visible; this example flags low confidence and offers guidance rather than automatic remediation.', alt: 'Vuln Lens AI analysis panel showing issue summaries, remediation guidance, and a low confidence indicator.' },
+ { id: 'source-evidence', label: 'Trace evidence', title: 'Keep every finding connected to its source.', description: 'Source evidence preserves the branch, commit, scanner, scan-run link, and affected file. Teams can trace a dashboard finding back to the original scan and the code or dependency that needs attention.', alt: 'Vuln Lens source evidence showing a Git branch and commit, Trivy scan-run link, scanner type, and affected requirements file.' }
+]
+const vulnIndex = ref(0)
+const vulnFeature = computed(() => vulnFeatures[vulnIndex.value])
+const vulnDialog = ref(null)
+const changeVulnFeature = (step) => { vulnIndex.value = (vulnIndex.value + step + vulnFeatures.length) % vulnFeatures.length }
+const openVulnDetail = () => { vulnDialog.value?.showModal() }
 const year = new Date().getFullYear()
 const skills = ['Python','FastAPI','Django','Flask','Vue.js','JavaScript','TypeScript','PostgreSQL','Snowflake','Redis','Celery','Docker','React','Node.js','SQLAlchemy']
 const roles = [
@@ -191,7 +202,22 @@ onUnmounted(() => {
      <div class="project-content"><span class="project-number">PROJECT / 02</span><h3>Understanding<br>the risk of AI.</h3><p>Working on an AI usage risk assessment project for insurance companies, helping them evaluate how their customers use AI.</p><div class="project-tags"><span>AI risk assessment</span><span>Insurance</span><span>Product development</span></div></div>
     </article>
    </div>
-   <div class="side-project reveal"><span class="small-icon">↗</span><div><div class="eyebrow">ALSO ON THE WORKBENCH</div><h3>Smart Dashboard</h3><p>An independent analytics and reporting platform, bringing together dashboards, background processing, and data-driven workflows.</p></div><div class="side-stack">FastAPI · PostgreSQL<br>Celery · Docker</div></div>
+   <article id="vuln-lens" class="project-card vuln-lens-card reveal" aria-labelledby="vuln-title">
+    <div class="card-label"><span>DEVSECOPS / BACKEND ENGINEERING</span><span class="project-status">INDEPENDENT PROJECT</span></div>
+    <div class="vuln-intro"><div><div class="eyebrow">FROM SECURITY SCANS TO CLEAR NEXT STEPS</div><h3 id="vuln-title">Vuln Lens<span class="hop-title-dot">.</span></h3></div><a href="https://vuln-lens.vercel.app/" target="_blank" rel="noopener noreferrer" class="button primary">Explore Vuln Lens <span>↗</span></a></div>
+    <p class="vuln-summary">Built the backend for a DevSecOps vulnerability analytics platform that turns security scans into consistent, actionable findings. Teams can prioritize risk, track changes, preserve triage decisions, and move from detection to remediation across repositories.</p>
+    <div class="vuln-flow" aria-label="Scan processing flow"><span>Security scanners</span><i aria-hidden="true">→</i><span>SARIF + API</span><i aria-hidden="true">→</i><span>Background workers</span><i aria-hidden="true">→</i><span>Findings + remediation</span></div>
+    <div class="vuln-tour" role="region" aria-label="Vuln Lens feature tour">
+     <div class="vuln-tour-bar"><span class="eyebrow">A CLOSER LOOK</span><span class="vuln-demo-label">PRODUCT INTERFACE · DEMO PROJECT</span></div>
+     <div class="vuln-feature-picker" aria-label="Choose a Vuln Lens feature"><button v-for="(feature,index) in vulnFeatures" :key="feature.id" :aria-pressed="vulnIndex === index" :class="{ selected: vulnIndex === index }" @click="vulnIndex = index"><span>0{{ index + 1 }}</span>{{ feature.label }}</button></div>
+     <figure class="vuln-figure"><div class="vuln-image-stage"><img :src="`/vuln-lens/${vulnFeature.id}.webp`" :alt="vulnFeature.alt" loading="lazy" decoding="async"><button class="vuln-expand" @click="openVulnDetail" aria-label="Enlarge feature screenshot">View larger ↗</button></div>
+      <figcaption class="vuln-caption"><div aria-live="polite" aria-atomic="true"><span class="project-number">FEATURE 0{{ vulnIndex + 1 }} / 04</span><h4>{{ vulnFeature.title }}</h4><p>{{ vulnFeature.description }}</p></div><div class="vuln-feature-arrows"><button class="slide-arrow" @click="changeVulnFeature(-1)" aria-label="Previous Vuln Lens feature">←</button><button class="slide-arrow" @click="changeVulnFeature(1)" aria-label="Next Vuln Lens feature">→</button></div></figcaption>
+     </figure>
+    </div>
+    <div class="vuln-backend-notes"><div><span class="eyebrow">INGEST & NORMALIZE</span><p>SARIF uploads, webhooks, and GitHub Actions. Adapters for Trivy, CodeQL, Semgrep, and Snyk; deduplication, scan changes, and persistent issue history.</p></div><div><span class="eyebrow">CONNECT & REMEDIATE</span><p>GitHub App repository sync and pull requests for scanning workflows. Optional AI summaries and remediation PRs run as background jobs.</p></div><div><span class="eyebrow">SERVE & SECURE</span><p>Project-scoped accounts, authentication and recovery, repository summaries, remediation trends, notifications, and CSV/PDF exports.</p></div></div>
+    <div class="vuln-footer"><div class="project-tags"><span>Python</span><span>FastAPI</span><span>SQLAlchemy</span><span>PostgreSQL</span><span>Celery</span><span>Redis</span><span>Docker Compose</span></div><p>Backend: API + processing services.<br>Frontend maintained separately.</p></div>
+    <dialog ref="vulnDialog" class="vuln-dialog" aria-labelledby="vuln-dialog-title"><div class="vuln-dialog-header"><strong id="vuln-dialog-title">{{ vulnFeature.title }}</strong><button autofocus @click="vulnDialog.close()" aria-label="Close screenshot">Close ×</button></div><img :src="`/vuln-lens/${vulnFeature.id}.webp`" :alt="vulnFeature.alt"><p>{{ vulnFeature.description }}</p></dialog>
+   </article>
   </section>
   <section id="work" :class="{ 'section-in-focus': active === 'work' }" class="work-section section-shell">
    <div class="work-intro reveal"><div class="eyebrow">02 / THE EXPERIENCE BEHIND IT</div><h2>A builder,<br>before the buzz.</h2><p>Years of shipping real software.<br>A foundation for what comes next.</p><div class="experience-metric"><strong>7<span>+</span></strong><span>YEARS OF PROFESSIONAL<br>ENGINEERING EXPERIENCE</span></div><a href="/gauravjeet-singh-resume.pdf" download class="text-link">The full resume <span>↗</span></a></div>
