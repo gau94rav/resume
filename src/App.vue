@@ -3,6 +3,22 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const progress = ref(0)
 const active = ref('intro')
 const menuOpen = ref(false)
+const isDark = ref(document.documentElement.dataset.theme === 'dark')
+const themeMedia = window.matchMedia('(prefers-color-scheme: dark)')
+let themeChosen = false
+try { themeChosen = ['light', 'dark'].includes(localStorage.getItem('resume-theme')) } catch {}
+const applyTheme = (dark) => {
+ isDark.value = dark
+ document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+ document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#101827' : '#edf1f8')
+}
+const toggleTheme = () => {
+ themeChosen = true
+ applyTheme(!isDark.value)
+ try { localStorage.setItem('resume-theme', isDark.value ? 'dark' : 'light') } catch {}
+}
+const followSystemTheme = (event) => { if (!themeChosen) applyTheme(event.matches) }
+
 const year = new Date().getFullYear()
 const skills = ['Python','FastAPI','Django','Flask','Vue.js','JavaScript','TypeScript','PostgreSQL','Snowflake','Redis','Celery','Docker','React','Node.js','SQLAlchemy']
 const roles = [
@@ -15,20 +31,27 @@ let observer, sectionObserver
 const onScroll = () => { const max = document.documentElement.scrollHeight - innerHeight; progress.value = max > 0 ? scrollY / max : 0 }
 const go = () => { menuOpen.value = false }
 onMounted(() => {
+ applyTheme(isDark.value); themeMedia.addEventListener('change', followSystemTheme)
  onScroll(); window.addEventListener('scroll', onScroll, { passive: true })
  observer = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) } }), { threshold: .08 })
  document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
  sectionObserver = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) active.value = e.target.id }), { rootMargin: '-20% 0px -55% 0px' })
  document.querySelectorAll('main > section[id]').forEach(el => sectionObserver.observe(el))
 })
-onUnmounted(() => { window.removeEventListener('scroll', onScroll); observer?.disconnect(); sectionObserver?.disconnect() })
+onUnmounted(() => { themeMedia.removeEventListener('change', followSystemTheme); window.removeEventListener('scroll', onScroll); observer?.disconnect(); sectionObserver?.disconnect() })
 </script>
 
 <template>
  <div class="reading-progress" :style="{ transform: `scaleX(${progress})` }"></div>
  <header class="header">
   <a href="#intro" class="wordmark" aria-label="Gauravjeet Singh home" @click="go">gs<span class="brand-dot">.</span><span class="wordmark-label">ENGINEER / BUILDER</span></a>
+  <div class="header-controls">
+   <button class="theme-toggle" @click="toggleTheme" :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'" :aria-pressed="isDark" :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+    <svg v-if="isDark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+    <svg v-else viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14a9 9 0 0 1-10.5-10.5A9 9 0 1 0 20.5 14Z"/></svg>
+   </button>
   <button class="menu-toggle" @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-controls="navigation">{{ menuOpen ? 'Close −' : 'Menu +' }}</button>
+  </div>
   <nav id="navigation" :class="{ open: menuOpen }" aria-label="Main navigation">
    <a v-for="item in [['now','Now'],['work','Experience'],['toolkit','Toolkit']]" :key="item[0]" :href="`#${item[0]}`" :class="{ active: active === item[0] }" @click="go">{{ item[1] }}</a>
    <a href="mailto:gau94rav@gmail.com" class="nav-contact">Let’s connect <span>↗</span></a>
