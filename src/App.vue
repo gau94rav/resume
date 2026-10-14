@@ -45,11 +45,62 @@ const roles = [
  { company: 'Canvas Craft Media', role: 'Full Stack Developer', date: 'MAR 2019 — OCT 2021', tag: 'From idea to production', intro: 'Different problems. End-to-end ownership.', points: ['Delivered 10+ bespoke applications for international clients across e-commerce, media, automation, and business workflows.', 'Built Python scraping and automation solutions, video hosting applications, and an Electron activity tracker.', 'Worked directly with clients to turn requirements into production software.'], stack: ['Python','JavaScript','Electron','Full stack'] },
  { company: 'Independent development', role: 'Freelance Developer & Self-directed Learning', date: '2015 — 2019', tag: 'The foundation', intro: 'Learning by building for real people.', points: ['Built responsive websites and custom applications for local businesses and individual clients.', 'Translated Figma designs into interfaces using HTML, CSS, JavaScript, PHP, and Node.js.', 'Contributed to open source and participated in coding camps and technical workshops.'], stack: ['HTML / CSS','JavaScript','PHP','Node.js'] }
 ]
-let observer, sectionObserver, focusObserver
+const motionMedia = window.matchMedia('(prefers-reduced-motion: reduce)')
+const booting = ref(!motionMedia.matches)
+const bootSeed = Math.random().toString(16).slice(2, 8).toUpperCase()
+const bootBands = Array.from({ length: 7 }, (_, index) => ({
+ top: `${8 + index * 12 + Math.random() * 5}%`,
+ height: `${2 + Math.random() * 12}px`,
+ left: `${Math.random() * 30}%`,
+ width: `${30 + Math.random() * 65}%`,
+ animationDelay: `${Math.random() * 180}ms`
+}))
+let observer, sectionObserver, focusObserver, glitchObserver
+let bootTimer
+const glitchTimers = new Map()
+const glitchFrames = new Map()
+const glitchSeen = new WeakSet()
+const glitchTargets = () => document.querySelectorAll('main > section[id], .project-card, .side-project, .toolkit-grid, .role')
+const playGlitch = (element, entering) => {
+ clearTimeout(glitchTimers.get(element))
+ cancelAnimationFrame(glitchFrames.get(element))
+ element.classList.remove('glitch-entering', 'glitch-leaving', 'glitched-away')
+ if (motionMedia.matches) return
+ element.style.setProperty('--glitch-x', `${(Math.random() > .5 ? 1 : -1) * (3 + Math.random() * 7)}px`)
+ element.style.setProperty('--glitch-cut', `${12 + Math.random() * 50}%`)
+ element.style.setProperty('--glitch-duration', `${entering ? 520 + Math.random() * 160 : 350 + Math.random() * 120}ms`)
+ element.dataset.glitchVariant = String(Math.floor(Math.random() * 3))
+ glitchFrames.set(element, requestAnimationFrame(() => {
+  glitchFrames.delete(element)
+  element.classList.add(entering ? 'glitch-entering' : 'glitch-leaving')
+  glitchTimers.set(element, setTimeout(() => {
+   element.classList.remove('glitch-entering', 'glitch-leaving')
+   if (!entering) element.classList.add('glitched-away')
+   glitchTimers.delete(element)
+  }, 720))
+ }))
+}
+const stopMotion = () => {
+ if (!motionMedia.matches) return
+ booting.value = false
+ clearTimeout(bootTimer)
+ glitchTimers.forEach(clearTimeout); glitchTimers.clear()
+ glitchFrames.forEach(cancelAnimationFrame); glitchFrames.clear()
+ glitchTargets().forEach(element => element.classList.remove('glitch-entering', 'glitch-leaving', 'glitched-away'))
+}
 const onScroll = () => { const max = document.documentElement.scrollHeight - innerHeight; progress.value = max > 0 ? scrollY / max : 0 }
 const go = () => { menuOpen.value = false }
 onMounted(() => {
  applyTheme(isDark.value); themeMedia.addEventListener('change', followSystemTheme)
+ motionMedia.addEventListener('change', stopMotion)
+ bootTimer = setTimeout(() => { booting.value = false }, 1000)
+ glitchObserver = new IntersectionObserver(entries => entries.forEach(entry => {
+  if (entry.isIntersecting) {
+   glitchSeen.add(entry.target)
+   if (!booting.value) playGlitch(entry.target, true)
+  } else if (glitchSeen.has(entry.target)) playGlitch(entry.target, false)
+ }), { rootMargin: '-12% 0px -12% 0px', threshold: 0 })
+ glitchTargets().forEach(element => glitchObserver.observe(element))
  onScroll(); window.addEventListener('scroll', onScroll, { passive: true })
  observer = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) } }), { threshold: .08 })
  document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
@@ -60,10 +111,19 @@ onMounted(() => {
  }), { rootMargin: '-25% 0px -30% 0px', threshold: 0 })
  document.querySelectorAll('.project-card, .side-project, .toolkit-grid').forEach(el => focusObserver.observe(el))
 })
-onUnmounted(() => { themeMedia.removeEventListener('change', followSystemTheme); window.removeEventListener('scroll', onScroll); observer?.disconnect(); sectionObserver?.disconnect(); focusObserver?.disconnect() })
+onUnmounted(() => {
+ clearTimeout(bootTimer); glitchObserver?.disconnect()
+ motionMedia.removeEventListener('change', stopMotion)
+ glitchTimers.forEach(clearTimeout); glitchFrames.forEach(cancelAnimationFrame)
+ themeMedia.removeEventListener('change', followSystemTheme); window.removeEventListener('scroll', onScroll); observer?.disconnect(); sectionObserver?.disconnect(); focusObserver?.disconnect() })
 </script>
 
 <template>
+ <div v-if="booting" class="boot-glitch" aria-hidden="true">
+  <div class="boot-grid"></div>
+  <span v-for="(band,index) in bootBands" :key="index" class="boot-band" :style="band"></span>
+  <div class="boot-signature"><span class="boot-mark">gs<span>.</span></span><span>ASSEMBLING THE POSSIBLE</span><small>{{ bootSeed }} / INITIALIZE</small></div>
+ </div>
  <div class="reading-progress" :style="{ transform: `scaleX(${progress})` }"></div>
  <header class="header">
   <a href="#intro" class="wordmark" aria-label="Gauravjeet Singh home" @click="go">gs<span class="brand-dot">.</span><span class="wordmark-label">ENGINEER / BUILDER</span></a>
@@ -79,7 +139,7 @@ onUnmounted(() => { themeMedia.removeEventListener('change', followSystemTheme);
    <a href="mailto:gau94rav@gmail.com" class="nav-contact">Let’s connect <span>↗</span></a>
   </nav>
  </header>
- <main>
+ <main :class="{ 'boot-materializing': booting }">
   <section id="intro" :class="{ 'section-in-focus': active === 'intro' }" class="hero section-shell">
    <div class="hero-copy">
     <div class="eyebrow"><span class="status-dot"></span> GAURAVJEET SINGH <span class="eyebrow-divider">/</span> SOFTWARE ENGINEER</div>
