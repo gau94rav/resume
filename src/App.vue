@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import ScreenshotImage from './components/ScreenshotImage.vue'
 const progress = ref(0)
 const active = ref('intro')
 const menuOpen = ref(false)
@@ -189,7 +190,7 @@ onUnmounted(() => {
       <div class="hop-gallery" role="region" aria-roledescription="carousel" aria-label="Hopworlds screenshots" tabindex="0" @keydown.left.prevent="setSlide(slideIndex - 1)" @keydown.right.prevent="setSlide(slideIndex + 1)">
        <div class="world-picker" aria-label="Explore game worlds"><button v-for="(world,index) in worlds" :key="world" :class="{ selected: currentSlide.world === world }" :aria-pressed="currentSlide.world === world" @click="setSlide(index * 4)">{{ world }}</button></div>
        <div class="screenshot-stage" @touchstart.passive="onSlideTouchStart" @touchend.passive="onSlideTouchEnd">
-        <img :src="`/hopworlds/${currentSlide.name}.webp`" :alt="currentSlide.alt" width="864" height="1440" decoding="async" loading="lazy" class="hop-screenshot">
+        <ScreenshotImage :key="currentSlide.name" :src="`/hopworlds/${currentSlide.name}.webp`" :alt="currentSlide.alt" width="864" height="1440" decoding="async" loading="lazy" class="hop-screenshot" />
        </div>
        <div class="slide-toolbar"><button class="slide-arrow" aria-label="Previous screenshot" @click="setSlide(slideIndex - 1)">←</button><div class="slide-caption" aria-live="polite" aria-atomic="true"><strong>{{ currentSlide.world }} / {{ currentSlide.scene }}</strong><span>{{ String(slideIndex + 1).padStart(2, '0') }} / 12</span></div><button class="slide-arrow" aria-label="Next screenshot" @click="setSlide(slideIndex + 1)">→</button></div>
        <div class="slide-thumbnails" aria-label="Choose a screenshot"><button v-for="(slide,index) in slides" :key="slide.name" :class="{ selected: slideIndex === index }" :aria-label="`Show ${slide.world} ${slide.scene} screenshot`" :aria-pressed="slideIndex === index" @click="setSlide(index)"><img :src="`/hopworlds/${slide.name}-thumb.webp`" alt="" width="120" height="200" loading="lazy" decoding="async"></button></div>
@@ -210,13 +211,13 @@ onUnmounted(() => {
     <div class="vuln-tour" role="region" aria-label="Vuln Lens feature tour">
      <div class="vuln-tour-bar"><span class="eyebrow">A CLOSER LOOK</span><span class="vuln-demo-label">PRODUCT INTERFACE · DEMO PROJECT</span></div>
      <div class="vuln-feature-picker" aria-label="Choose a Vuln Lens feature"><button v-for="(feature,index) in vulnFeatures" :key="feature.id" :aria-pressed="vulnIndex === index" :class="{ selected: vulnIndex === index }" @click="vulnIndex = index"><span>0{{ index + 1 }}</span>{{ feature.label }}</button></div>
-     <figure class="vuln-figure"><div class="vuln-image-stage"><img :src="`/vuln-lens/${vulnFeature.id}.webp`" :alt="vulnFeature.alt" loading="lazy" decoding="async"><button class="vuln-expand" @click="openVulnDetail" aria-label="Enlarge feature screenshot">View larger ↗</button></div>
+     <figure class="vuln-figure"><div class="vuln-image-stage"><ScreenshotImage :key="vulnFeature.id" :src="`/vuln-lens/${vulnFeature.id}.webp`" :alt="vulnFeature.alt" loading="lazy" decoding="async" /><button class="vuln-expand" @click="openVulnDetail" aria-label="Enlarge feature screenshot">View larger ↗</button></div>
       <figcaption class="vuln-caption"><div aria-live="polite" aria-atomic="true"><span class="project-number">FEATURE 0{{ vulnIndex + 1 }} / 04</span><h4>{{ vulnFeature.title }}</h4><p>{{ vulnFeature.description }}</p></div><div class="vuln-feature-arrows"><button class="slide-arrow" @click="changeVulnFeature(-1)" aria-label="Previous Vuln Lens feature">←</button><button class="slide-arrow" @click="changeVulnFeature(1)" aria-label="Next Vuln Lens feature">→</button></div></figcaption>
      </figure>
     </div>
     <div class="vuln-backend-notes"><div><span class="eyebrow">INGEST & NORMALIZE</span><p>SARIF uploads, webhooks, and GitHub Actions. Adapters for Trivy, CodeQL, Semgrep, and Snyk; deduplication, scan changes, and persistent issue history.</p></div><div><span class="eyebrow">CONNECT & REMEDIATE</span><p>GitHub App repository sync and pull requests for scanning workflows. Optional AI summaries and remediation PRs run as background jobs.</p></div><div><span class="eyebrow">SERVE & SECURE</span><p>Project-scoped accounts, authentication and recovery, repository summaries, remediation trends, notifications, and CSV/PDF exports.</p></div></div>
     <div class="vuln-footer"><div class="project-tags"><span>Python</span><span>FastAPI</span><span>SQLAlchemy</span><span>PostgreSQL</span><span>Celery</span><span>Redis</span><span>Docker Compose</span></div><p>Backend: API + processing services.<br>Frontend maintained separately.</p></div>
-    <dialog ref="vulnDialog" class="vuln-dialog" aria-labelledby="vuln-dialog-title"><div class="vuln-dialog-header"><strong id="vuln-dialog-title">{{ vulnFeature.title }}</strong><button autofocus @click="vulnDialog.close()" aria-label="Close screenshot">Close ×</button></div><img :src="`/vuln-lens/${vulnFeature.id}.webp`" :alt="vulnFeature.alt"><p>{{ vulnFeature.description }}</p></dialog>
+    <dialog ref="vulnDialog" class="vuln-dialog" aria-labelledby="vuln-dialog-title"><div class="vuln-dialog-header"><strong id="vuln-dialog-title">{{ vulnFeature.title }}</strong><button autofocus @click="vulnDialog.close()" aria-label="Close screenshot">Close ×</button></div><div class="vuln-dialog-image"><ScreenshotImage :key="vulnFeature.id" :src="`/vuln-lens/${vulnFeature.id}.webp`" :alt="vulnFeature.alt" decoding="async" /></div><p>{{ vulnFeature.description }}</p></dialog>
    </article>
   </section>
   <section id="work" :class="{ 'section-in-focus': active === 'work' }" class="work-section section-shell">
