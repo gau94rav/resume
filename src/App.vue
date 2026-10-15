@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import ScreenshotImage from './components/ScreenshotImage.vue'
 const progress = ref(0)
 const active = ref('intro')
@@ -47,6 +47,20 @@ const changeVulnFeature = (step) => { vulnIndex.value = (vulnIndex.value + step 
 const openVulnDetail = () => { vulnDialog.value?.showModal() }
 const year = new Date().getFullYear()
 const skills = ['Python','FastAPI','Django','Flask','Vue.js','JavaScript','TypeScript','PostgreSQL','Snowflake','Redis','Celery','Docker','React','Node.js','SQLAlchemy']
+const learningProjects = [
+ { id: 'tic-tac-toe', title: 'Tic Tac Toe', subtitle: 'A step beyond the basics', code: 'MZzgza', story: 'My first experiment with more advanced logic. A small game, but a bigger question: how do I keep track of turns, recognise a win, and make all the rules work together?', takeaway: 'Learning to think in states and rules.' },
+ { id: 'calculator', title: 'Javascript Calculator', subtitle: 'It worked. Then I made it mine.', code: 'aQgMpw', story: 'Making a simple calculator was not enough, so I added a theme. Once the numbers worked, I wanted to play with how it looked and felt, too.', takeaway: 'Functionality was the start. Personality came next.' },
+ { id: 'drum-machine', title: 'Drum Machine', subtitle: 'Learning with a little rhythm', code: 'mQgLNp', story: 'A little more fun, a little more musical. This experiment turned a grid of buttons into something you could play with, adding sound to the things I was learning to build.', takeaway: 'A reminder that code can be playful.' },
+ { id: 'stop-watch', title: 'Stop Watch', subtitle: 'Making time visible', code: 'maPNjO', story: 'A small exercise in timing and state: start, stop, reset, and record a lap. Simple on the surface, with a few useful lessons in keeping an interface in sync with what is happening underneath.', takeaway: 'Small tools. Practical lessons.' },
+ { id: 'odometer', title: 'Odometer', subtitle: 'My first independent build at work', code: 'YMVLpe', story: 'In my first job, I was asked to make an animated number randomizer. The interesting rule: if a digit repeated at the same position, it had to stay still until that position changed again. Everything else needed to animate smoothly.', ending: 'It was the first project I built myself on the job - a small display, but a big personal milestone.', takeaway: 'Where learning became real work.', milestone: true }
+]
+const learningDialog = ref(null)
+const selectedLearningProject = ref(null)
+const openLearningScreenshot = async (project) => {
+ selectedLearningProject.value = project
+ await nextTick()
+ learningDialog.value?.showModal()
+}
 const roles = [
  { company: 'Snyk', role: 'Software Engineer', date: 'MAR 2022 — JUN 2026', tag: 'Security × analytics', intro: 'Making complex security data useful.', points: ['Built security analytics dashboards for vulnerability insights, CVE, CWE, and zero-day reporting.', 'Developed Python services and REST APIs, connecting Vue.js interfaces with Snowflake and PostgreSQL.', 'Delivered the backend for the Reporting Export API, helping customers export large security datasets.', 'Worked across engineering teams, contributed to interviews, and helped onboard engineers.'], stack: ['Python','Vue.js','Snowflake','PostgreSQL'] },
  { company: 'Topcoat', role: 'Software Engineer', date: 'OCT 2021 — MAR 2022', tag: 'Tools for builders', intro: 'A reporting platform you could build inside.', points: ['Built a browser-based reporting IDE with Vue.js and Monaco Editor.', 'Connected SQL and Vue code to custom reporting pages, with context-aware autocomplete.', 'Developed Python APIs and Snowflake-powered reporting experiences before the platform’s acquisition by Snyk.'], stack: ['Vue.js','Monaco Editor','Python','Snowflake'] },
@@ -143,7 +157,7 @@ onUnmounted(() => {
   <button class="menu-toggle" @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-controls="navigation">{{ menuOpen ? 'Close −' : 'Menu +' }}</button>
   </div>
   <nav id="navigation" :class="{ open: menuOpen }" aria-label="Main navigation">
-   <a v-for="item in [['now','Now'],['work','Experience'],['toolkit','Toolkit']]" :key="item[0]" :href="`#${item[0]}`" :class="{ active: active === item[0] }" @click="go">{{ item[1] }}</a>
+   <a v-for="item in [['now','Now'],['work','Experience'],['learning','Early work'],['toolkit','Toolkit']]" :key="item[0]" :href="`#${item[0]}`" :class="{ active: active === item[0] }" @click="go">{{ item[1] }}</a>
    <a href="mailto:gau94rav@gmail.com" class="nav-contact">Let’s connect <span>↗</span></a>
   </nav>
  </header>
@@ -220,8 +234,19 @@ onUnmounted(() => {
    <div class="work-intro reveal"><div class="eyebrow">02 / THE EXPERIENCE BEHIND IT</div><h2>A builder,<br>before the buzz.</h2><p>Years of shipping real software.<br>A foundation for what comes next.</p><div class="experience-metric"><strong>7<span>+</span></strong><span>YEARS OF PROFESSIONAL<br>ENGINEERING EXPERIENCE</span></div><a href="/gauravjeet-singh-resume.pdf" download class="text-link">The full resume <span>↗</span></a></div>
    <div class="timeline"><article v-for="(role,index) in roles" :key="role.company" class="role reveal"><div class="timeline-dot"></div><div class="role-top"><span>{{ role.date }}</span><span class="role-index">0{{ index + 1 }}</span></div><h3>{{ role.company }}</h3><div class="role-title">{{ role.role }}</div><div class="role-tag">{{ role.tag }}</div><h4>{{ role.intro }}</h4><ul><li v-for="point in role.points" :key="point">{{ point }}</li></ul><div class="role-stack"><span v-for="tech in role.stack" :key="tech">{{ tech }}</span></div></article></div>
   </section>
+  <section id="learning" :class="{ 'section-in-focus': active === 'learning' }" class="section-shell learning-section">
+   <div class="section-heading reveal"><div class="eyebrow">03 / WHERE IT STARTED</div><h2>Before AI.<br><span>Just curiosity.</span></h2><p>Little projects from my early learning days.<br>Built to figure things out, then make them my own.</p></div>
+   <div class="learning-intro reveal"><span class="learning-bracket" aria-hidden="true">{ }</span><p>Before the platforms and production systems, there were games, buttons, sounds, and numbers. These five experiments capture the part of building I still love: following an idea and seeing it come to life.</p></div>
+   <div class="learning-grid">
+    <article v-for="(project,index) in learningProjects" :key="project.id" :class="{ 'learning-milestone': project.milestone }" class="project-card learning-card reveal">
+     <div class="learning-image" :class="`learning-image-${project.id}`"><ScreenshotImage :src="`/learning/${project.id}.jpg`" :alt="`${project.title}: screenshot of my original CodePen app`" loading="lazy" decoding="async" /><button class="vuln-expand" @click="openLearningScreenshot(project)" :aria-label="`Enlarge ${project.title} screenshot`">View larger ↗</button></div>
+     <div class="learning-story"><div class="eyebrow"><span>0{{ index + 1 }} / {{ project.milestone ? 'THE FIRST-JOB MILESTONE' : 'LEARNING BY MAKING' }}</span></div><h3>{{ project.title }}</h3><h4>{{ project.subtitle }}</h4><p>{{ project.story }}</p><p v-if="project.ending">{{ project.ending }}</p><div class="learning-takeaway">{{ project.takeaway }}</div><a :href="`https://codepen.io/slave-of-machine/full/${project.code}`" target="_blank" rel="noopener noreferrer" class="text-link">Play with the original <span>↗</span></a></div>
+    </article>
+   </div>
+   <dialog v-if="selectedLearningProject" ref="learningDialog" class="vuln-dialog learning-dialog" aria-labelledby="learning-dialog-title"><div class="vuln-dialog-header"><strong id="learning-dialog-title">{{ selectedLearningProject.title }} / The original experiment</strong><button autofocus @click="learningDialog.close()" aria-label="Close early project screenshot">Close ×</button></div><div class="vuln-dialog-image"><ScreenshotImage :src="`/learning/${selectedLearningProject.id}.jpg`" :alt="`${selectedLearningProject.title} app screenshot`" /></div><p>{{ selectedLearningProject.story }}</p><a :href="`https://codepen.io/slave-of-machine/full/${selectedLearningProject.code}`" target="_blank" rel="noopener noreferrer" class="text-link">Open the original on CodePen ↗</a></dialog>
+  </section>
   <section id="toolkit" :class="{ 'section-in-focus': active === 'toolkit' }" class="toolkit-section section-shell">
-   <div class="section-heading reveal"><div class="eyebrow">03 / THE TOOLKIT</div><h2>Grounded in code.<br><span>Amplified by AI.</span></h2><p>Backend depth. Frontend craft.<br>A growing practice of building with AI tools.</p></div>
+   <div class="section-heading reveal"><div class="eyebrow">04 / THE TOOLKIT</div><h2>Grounded in code.<br><span>Amplified by AI.</span></h2><p>Backend depth. Frontend craft.<br>A growing practice of building with AI tools.</p></div>
    <div class="toolkit-grid reveal"><div class="toolkit-feature"><span class="tool-symbol">✳</span><div class="eyebrow">HOW I WORK TODAY</div><h3>AI in the<br> building process.</h3><p>I work heavily with AI tools while developing new products, combining that approach with hands-on full-stack engineering.</p></div><div class="skill-panel"><div class="eyebrow">ENGINEERING FOUNDATION</div><div class="skill-cloud"><span v-for="skill in skills" :key="skill">{{ skill }}</span></div><div class="skill-focus"><div><span>01</span><h4>Backend & data</h4><p>APIs, reporting, aggregation, background jobs.</p></div><div><span>02</span><h4>Interfaces & products</h4><p>Dashboards, developer tools, full-stack applications.</p></div></div></div></div>
   </section>
   <section id="contact" :class="{ 'section-in-focus': active === 'contact' }" class="contact-section section-shell"><div class="eyebrow"><span class="status-dot"></span> NEXT / A CONVERSATION</div><h2>Have an interesting<br><span>what if?</span></h2><div class="contact-bottom"><p>Let’s talk software, AI, games,<br>or the idea you can’t stop thinking about.</p><a class="button primary" href="mailto:gau94rav@gmail.com">gau94rav@gmail.com <span>↗</span></a></div></section>
