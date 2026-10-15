@@ -69,3 +69,5 @@ main>section[id],.project-card,.side-project,.toolkit-grid,.role{position:relati
 @media(prefers-reduced-motion:reduce){.screenshot-glitch-loader,.screenshot-glitch-loader::after,.screenshot-glitch-icon i,.loader-text-echo{animation:none!important}.loader-text-echo,.screenshot-glitch-loader::after{display:none}}
 
 .header{margin-bottom:24px}html{scroll-padding-top:124px}@media(max-width:760px){.header{margin-bottom:16px}html{scroll-padding-top:94px}}
+
+.vuln-feature-picker{grid-template-columns:repeat(5,minmax(0,1fr))}.vuln-image-stage.vuln-full-preview{height:auto;min-height:220px;padding-bottom:44px}.vuln-full-preview>img{width:100%;height:auto;max-height:none}@media(max-width:760px){.vuln-feature-picker{grid-template-columns:repeat(2,minmax(0,1fr))}.vuln-feature-picker button:first-child{grid-column:1/-1}.vuln-image-stage.vuln-full-preview{min-height:170px;padding-bottom:36px}}
